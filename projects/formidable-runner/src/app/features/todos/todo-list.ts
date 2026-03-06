@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucidePlus, lucideTrash2, lucideX } from '@ng-icons/lucide';
 import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
+import { BrnDialogClose } from '@spartan-ng/brain/dialog';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -33,6 +34,7 @@ import { TodosService } from './todos.service';
     HlmSpinnerImports,
     HlmCheckboxImports,
     BrnAlertDialogImports,
+    BrnDialogClose,
     HlmAlertDialogImports,
   ],
   template: `
@@ -103,8 +105,8 @@ import { TodosService } from './todos.service';
                             </p>
                           </hlm-alert-dialog-header>
                           <hlm-alert-dialog-footer>
-                            <button hlmAlertDialogCancel>Cancel</button>
-                            <button hlmAlertDialogAction (click)="onDelete(todo)">Delete</button>
+                            <button hlmAlertDialogCancel brnDialogClose>Cancel</button>
+                            <button hlmAlertDialogAction brnDialogClose (click)="onDelete(todo)">Delete</button>
                           </hlm-alert-dialog-footer>
                         </hlm-alert-dialog-content>
                       </ng-template>

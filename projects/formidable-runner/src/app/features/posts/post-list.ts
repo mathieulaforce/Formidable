@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideEye, lucidePencil, lucidePlus, lucideSearch, lucideThumbsDown, lucideThumbsUp, lucideTrash2 } from '@ng-icons/lucide';
 import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
+import { BrnDialogClose } from '@spartan-ng/brain/dialog';
 import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
@@ -32,6 +33,7 @@ import { PostsService } from './posts.service';
     HlmPaginationImports,
     HlmSpinnerImports,
     BrnAlertDialogImports,
+    BrnDialogClose,
     HlmAlertDialogImports,
   ],
   template: `
@@ -122,8 +124,8 @@ import { PostsService } from './posts.service';
                               </p>
                             </hlm-alert-dialog-header>
                             <hlm-alert-dialog-footer>
-                              <button hlmAlertDialogCancel>Cancel</button>
-                              <button hlmAlertDialogAction (click)="onDelete(post)">Delete</button>
+                              <button hlmAlertDialogCancel brnDialogClose>Cancel</button>
+                              <button hlmAlertDialogAction brnDialogClose (click)="onDelete(post)">Delete</button>
                             </hlm-alert-dialog-footer>
                           </hlm-alert-dialog-content>
                         </ng-template>
