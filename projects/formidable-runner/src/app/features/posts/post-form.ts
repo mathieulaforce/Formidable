@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
@@ -12,7 +13,6 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { toast } from 'ngx-sonner';
 import { AuthService } from '../../core/auth/auth.service';
-import type { Post } from './post.models';
 import { PostsService } from './posts.service';
 
 @Component({
@@ -79,9 +79,8 @@ export default class PostForm {
   private readonly fb = inject(FormBuilder);
 
   readonly id = input<string>();
-
+  protected readonly isEdit = computed(() => !!this.id());
   protected readonly saving = signal(false);
-  protected readonly isEdit = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
@@ -89,26 +88,30 @@ export default class PostForm {
     tags: [''],
   });
 
+  private readonly postResource = rxResource({
+    params: () => {
+      const id = this.id();
+      return id ? Number(id) : undefined;
+    },
+    stream: ({ params: id }) => this.service.getById(id),
+  });
+
   constructor() {
     effect(() => {
-      const id = this.id();
-      if (id) {
-        this.isEdit.set(true);
-        this.loadPost(Number(id));
-      }
-    });
-  }
-
-  private loadPost(id: number): void {
-    this.service.getById(id).subscribe({
-      next: (post: Post) => {
+      const post = this.postResource.value();
+      if (post) {
         this.form.patchValue({
           title: post.title,
           body: post.body,
           tags: post.tags.join(', '),
         });
-      },
-      error: () => toast.error('Failed to load post'),
+      }
+    });
+
+    effect(() => {
+      if (this.postResource.error()) {
+        toast.error('Failed to load post');
+      }
     });
   }
 

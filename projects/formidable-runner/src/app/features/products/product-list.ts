@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideEye, lucidePencil, lucidePlus, lucideSearch, lucideTrash2 } from '@ng-icons/lucide';
 import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
@@ -59,7 +60,7 @@ import { ProductsService } from './products.service';
         </div>
       </div>
 
-      @if (loading()) {
+      @if (productsResource.isLoading()) {
         <div class="flex justify-center py-12">
           <hlm-spinner size="lg" />
         </div>
@@ -142,41 +143,27 @@ import { ProductsService } from './products.service';
 })
 export default class ProductList {
   private readonly service = inject(ProductsService);
-  private readonly router = inject(Router);
 
-  protected readonly products = signal<Product[]>([]);
-  protected readonly totalItems = signal(0);
-  protected readonly loading = signal(true);
   protected readonly searchQuery = signal('');
-
   protected readonly currentPage = signal(1);
   protected readonly itemsPerPage = signal(10);
 
   private readonly skip = computed(() => (this.currentPage() - 1) * this.itemsPerPage());
 
+  protected readonly productsResource = rxResource({
+    params: () => ({ query: this.searchQuery(), limit: this.itemsPerPage(), skip: this.skip() }),
+    stream: ({ params: { query, limit, skip } }) =>
+      query ? this.service.search(query, limit, skip) : this.service.getAll(limit, skip),
+  });
+
+  protected readonly products = computed(() => this.productsResource.value()?.products ?? []);
+  protected readonly totalItems = computed(() => this.productsResource.value()?.total ?? 0);
+
   constructor() {
     effect(() => {
-      const skip = this.skip();
-      const limit = this.itemsPerPage();
-      const query = this.searchQuery();
-      this.loadProducts(query, limit, skip);
-    });
-  }
-
-  private loadProducts(query: string, limit: number, skip: number): void {
-    this.loading.set(true);
-    const request = query ? this.service.search(query, limit, skip) : this.service.getAll(limit, skip);
-
-    request.subscribe({
-      next: (response) => {
-        this.products.set(response.products);
-        this.totalItems.set(response.total);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
+      if (this.productsResource.error()) {
         toast.error('Failed to load products');
-      },
+      }
     });
   }
 
@@ -188,7 +175,10 @@ export default class ProductList {
   protected onDelete(product: Product): void {
     this.service.delete(product.id).subscribe({
       next: () => {
-        this.products.update((items) => items.filter((p) => p.id !== product.id));
+        const current = this.productsResource.value();
+        if (current) {
+          this.productsResource.set({ ...current, products: current.products.filter((p) => p.id !== product.id) });
+        }
         toast.success(`"${product.title}" deleted successfully`);
       },
       error: () => toast.error('Failed to delete product'),

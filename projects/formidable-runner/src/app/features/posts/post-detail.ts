@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucidePencil, lucideThumbsDown, lucideThumbsUp } from '@ng-icons/lucide';
@@ -8,7 +9,6 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import type { Post } from './post.models';
 import { PostsService } from './posts.service';
 
 @Component({
@@ -17,11 +17,11 @@ import { PostsService } from './posts.service';
   providers: [provideIcons({ lucideArrowLeft, lucidePencil, lucideThumbsUp, lucideThumbsDown })],
   imports: [RouterLink, HlmCardImports, HlmButtonImports, HlmIconImports, HlmBadgeImports, HlmSeparatorImports, HlmSpinnerImports],
   template: `
-    @if (loading()) {
+    @if (postResource.isLoading()) {
       <div class="flex justify-center py-12">
         <hlm-spinner size="lg" />
       </div>
-    } @else if (post(); as p) {
+    } @else if (postResource.value(); as p) {
       <div class="space-y-6">
         <div class="flex items-center gap-4">
           <a hlmBtn variant="outline" size="icon" routerLink="/posts">
@@ -70,24 +70,9 @@ export default class PostDetail {
   private readonly service = inject(PostsService);
 
   readonly id = input.required<string>();
-  protected readonly post = signal<Post | null>(null);
-  protected readonly loading = signal(true);
 
-  constructor() {
-    effect(() => {
-      const id = Number(this.id());
-      if (id) this.loadPost(id);
-    });
-  }
-
-  private loadPost(id: number): void {
-    this.loading.set(true);
-    this.service.getById(id).subscribe({
-      next: (post) => {
-        this.post.set(post);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
+  protected readonly postResource = rxResource({
+    params: () => Number(this.id()),
+    stream: ({ params: id }) => this.service.getById(id),
+  });
 }

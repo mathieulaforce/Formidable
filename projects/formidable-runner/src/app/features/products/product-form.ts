@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
@@ -11,7 +12,6 @@ import { HlmLabelImports } from '@spartan-ng/helm/label';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
 import { toast } from 'ngx-sonner';
-import type { Product } from './product.models';
 import { ProductsService } from './products.service';
 
 @Component({
@@ -93,9 +93,8 @@ export default class ProductForm {
   private readonly fb = inject(FormBuilder);
 
   readonly id = input<string>();
-
+  protected readonly isEdit = computed(() => !!this.id());
   protected readonly saving = signal(false);
-  protected readonly isEdit = signal(false);
 
   protected readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
@@ -106,19 +105,18 @@ export default class ProductForm {
     brand: ['', Validators.required],
   });
 
+  private readonly productResource = rxResource({
+    params: () => {
+      const id = this.id();
+      return id ? Number(id) : undefined;
+    },
+    stream: ({ params: id }) => this.service.getById(id),
+  });
+
   constructor() {
     effect(() => {
-      const id = this.id();
-      if (id) {
-        this.isEdit.set(true);
-        this.loadProduct(Number(id));
-      }
-    });
-  }
-
-  private loadProduct(id: number): void {
-    this.service.getById(id).subscribe({
-      next: (product: Product) => {
+      const product = this.productResource.value();
+      if (product) {
         this.form.patchValue({
           title: product.title,
           description: product.description,
@@ -127,8 +125,13 @@ export default class ProductForm {
           category: product.category,
           brand: product.brand,
         });
-      },
-      error: () => toast.error('Failed to load product'),
+      }
+    });
+
+    effect(() => {
+      if (this.productResource.error()) {
+        toast.error('Failed to load product');
+      }
     });
   }
 

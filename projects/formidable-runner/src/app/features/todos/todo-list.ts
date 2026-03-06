@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import { lucideCheck, lucidePlus, lucideTrash2, lucideX } from '@ng-icons/lucide';
@@ -61,7 +62,7 @@ import { TodosService } from './todos.service';
         </div>
       </section>
 
-      @if (loading()) {
+      @if (todosResource.isLoading()) {
         <div class="flex justify-center py-12">
           <hlm-spinner size="lg" />
         </div>
@@ -133,36 +134,25 @@ export default class TodoList {
   private readonly service = inject(TodosService);
   private readonly auth = inject(AuthService);
 
-  protected readonly todos = signal<Todo[]>([]);
-  protected readonly totalItems = signal(0);
-  protected readonly loading = signal(true);
   protected readonly newTodoText = signal('');
-
   protected readonly currentPage = signal(1);
   protected readonly itemsPerPage = signal(10);
 
   private readonly skip = computed(() => (this.currentPage() - 1) * this.itemsPerPage());
 
+  protected readonly todosResource = rxResource({
+    params: () => ({ limit: this.itemsPerPage(), skip: this.skip() }),
+    stream: ({ params }) => this.service.getAll(params.limit, params.skip),
+  });
+
+  protected readonly todos = computed(() => this.todosResource.value()?.todos ?? []);
+  protected readonly totalItems = computed(() => this.todosResource.value()?.total ?? 0);
+
   constructor() {
     effect(() => {
-      const skip = this.skip();
-      const limit = this.itemsPerPage();
-      this.loadTodos(limit, skip);
-    });
-  }
-
-  private loadTodos(limit: number, skip: number): void {
-    this.loading.set(true);
-    this.service.getAll(limit, skip).subscribe({
-      next: (response) => {
-        this.todos.set(response.todos);
-        this.totalItems.set(response.total);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loading.set(false);
+      if (this.todosResource.error()) {
         toast.error('Failed to load todos');
-      },
+      }
     });
   }
 
@@ -173,8 +163,10 @@ export default class TodoList {
     const userId = this.auth.user()?.id ?? 1;
     this.service.create({ todo: text, completed: false, userId }).subscribe({
       next: (todo) => {
-        this.todos.update((items) => [todo, ...items]);
-        this.totalItems.update((n) => n + 1);
+        const current = this.todosResource.value();
+        if (current) {
+          this.todosResource.set({ ...current, todos: [todo, ...current.todos], total: current.total + 1 });
+        }
         this.newTodoText.set('');
         toast.success('Todo added');
       },
@@ -186,7 +178,13 @@ export default class TodoList {
     const updated = !todo.completed;
     this.service.update(todo.id, { completed: updated }).subscribe({
       next: () => {
-        this.todos.update((items) => items.map((t) => (t.id === todo.id ? { ...t, completed: updated } : t)));
+        const current = this.todosResource.value();
+        if (current) {
+          this.todosResource.set({
+            ...current,
+            todos: current.todos.map((t) => (t.id === todo.id ? { ...t, completed: updated } : t)),
+          });
+        }
       },
       error: () => toast.error('Failed to update todo'),
     });
@@ -195,8 +193,14 @@ export default class TodoList {
   protected onDelete(todo: Todo): void {
     this.service.delete(todo.id).subscribe({
       next: () => {
-        this.todos.update((items) => items.filter((t) => t.id !== todo.id));
-        this.totalItems.update((n) => n - 1);
+        const current = this.todosResource.value();
+        if (current) {
+          this.todosResource.set({
+            ...current,
+            todos: current.todos.filter((t) => t.id !== todo.id),
+            total: current.total - 1,
+          });
+        }
         toast.success('Todo deleted');
       },
       error: () => toast.error('Failed to delete todo'),

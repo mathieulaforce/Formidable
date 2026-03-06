@@ -1,5 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
 import { lucideArrowLeft, lucidePencil, lucideStar } from '@ng-icons/lucide';
@@ -9,7 +10,6 @@ import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import type { Product } from './product.models';
 import { ProductsService } from './products.service';
 
 @Component({
@@ -27,11 +27,11 @@ import { ProductsService } from './products.service';
     HlmSpinnerImports,
   ],
   template: `
-    @if (loading()) {
+    @if (productResource.isLoading()) {
       <div class="flex justify-center py-12">
         <hlm-spinner size="lg" />
       </div>
-    } @else if (product(); as p) {
+    } @else if (productResource.value(); as p) {
       <div class="space-y-6">
         <div class="flex items-center gap-4">
           <a hlmBtn variant="outline" size="icon" routerLink="/products">
@@ -173,24 +173,9 @@ export default class ProductDetail {
   private readonly service = inject(ProductsService);
 
   readonly id = input.required<string>();
-  protected readonly product = signal<Product | null>(null);
-  protected readonly loading = signal(true);
 
-  constructor() {
-    effect(() => {
-      const id = Number(this.id());
-      if (id) this.loadProduct(id);
-    });
-  }
-
-  private loadProduct(id: number): void {
-    this.loading.set(true);
-    this.service.getById(id).subscribe({
-      next: (product) => {
-        this.product.set(product);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
-    });
-  }
+  protected readonly productResource = rxResource({
+    params: () => Number(this.id()),
+    stream: ({ params: id }) => this.service.getById(id),
+  });
 }
