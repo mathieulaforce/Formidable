@@ -1,0 +1,234 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "paths": {
+      "dyn-crud": [
+        "./dist/dyn-crud"
+      ],
+      "dyn-form": [
+        "./dist/dyn-form"
+      ],
+      "ui": [
+        "./dist/ui"
+      ],
+      "@spartan-ng/helm/accordion": [
+        "./projects/ui/accordion/src/index.ts"
+      ],
+      "@spartan-ng/helm/alert": [
+        "./projects/ui/alert/src/index.ts"
+      ],
+      "@spartan-ng/helm/alert-dialog": [
+        "./projects/ui/alert-dialog/src/index.ts"
+      ],
+      "@spartan-ng/helm/aspect-ratio": [
+        "./projects/ui/aspect-ratio/src/index.ts"
+      ],
+      "@spartan-ng/helm/autocomplete": [
+        "./projects/ui/autocomplete/src/index.ts"
+      ],
+      "@spartan-ng/helm/avatar": [
+        "./projects/ui/avatar/src/index.ts"
+      ],
+      "@spartan-ng/helm/badge": [
+        "./projects/ui/badge/src/index.ts"
+      ],
+      "@spartan-ng/helm/breadcrumb": [
+        "./projects/ui/breadcrumb/src/index.ts"
+      ],
+      "@spartan-ng/helm/button": [
+        "./projects/ui/button/src/index.ts"
+      ],
+      "@spartan-ng/helm/button-group": [
+        "./projects/ui/button-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/calendar": [
+        "./projects/ui/calendar/src/index.ts"
+      ],
+      "@spartan-ng/helm/card": [
+        "./projects/ui/card/src/index.ts"
+      ],
+      "@spartan-ng/helm/carousel": [
+        "./projects/ui/carousel/src/index.ts"
+      ],
+      "@spartan-ng/helm/checkbox": [
+        "./projects/ui/checkbox/src/index.ts"
+      ],
+      "@spartan-ng/helm/collapsible": [
+        "./projects/ui/collapsible/src/index.ts"
+      ],
+      "@spartan-ng/helm/combobox": [
+        "./projects/ui/combobox/src/index.ts"
+      ],
+      "@spartan-ng/helm/command": [
+        "./projects/ui/command/src/index.ts"
+      ],
+      "@spartan-ng/helm/context-menu": [
+        "./projects/ui/context-menu/src/index.ts"
+      ],
+      "@spartan-ng/helm/date-picker": [
+        "./projects/ui/date-picker/src/index.ts"
+      ],
+      "@spartan-ng/helm/dialog": [
+        "./projects/ui/dialog/src/index.ts"
+      ],
+      "@spartan-ng/helm/dropdown-menu": [
+        "./projects/ui/dropdown-menu/src/index.ts"
+      ],
+      "@spartan-ng/helm/empty": [
+        "./projects/ui/empty/src/index.ts"
+      ],
+      "@spartan-ng/helm/field": [
+        "./projects/ui/field/src/index.ts"
+      ],
+      "@spartan-ng/helm/form-field": [
+        "./projects/ui/form-field/src/index.ts"
+      ],
+      "@spartan-ng/helm/hover-card": [
+        "./projects/ui/hover-card/src/index.ts"
+      ],
+      "@spartan-ng/helm/icon": [
+        "./projects/ui/icon/src/index.ts"
+      ],
+      "@spartan-ng/helm/input": [
+        "./projects/ui/input/src/index.ts"
+      ],
+      "@spartan-ng/helm/input-group": [
+        "./projects/ui/input-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/input-otp": [
+        "./projects/ui/input-otp/src/index.ts"
+      ],
+      "@spartan-ng/helm/item": [
+        "./projects/ui/item/src/index.ts"
+      ],
+      "@spartan-ng/helm/kbd": [
+        "./projects/ui/kbd/src/index.ts"
+      ],
+      "@spartan-ng/helm/label": [
+        "./projects/ui/label/src/index.ts"
+      ],
+      "@spartan-ng/helm/menubar": [
+        "./projects/ui/menubar/src/index.ts"
+      ],
+      "@spartan-ng/helm/native-select": [
+        "./projects/ui/native-select/src/index.ts"
+      ],
+      "@spartan-ng/helm/navigation-menu": [
+        "./projects/ui/navigation-menu/src/index.ts"
+      ],
+      "@spartan-ng/helm/pagination": [
+        "./projects/ui/pagination/src/index.ts"
+      ],
+      "@spartan-ng/helm/popover": [
+        "./projects/ui/popover/src/index.ts"
+      ],
+      "@spartan-ng/helm/progress": [
+        "./projects/ui/progress/src/index.ts"
+      ],
+      "@spartan-ng/helm/radio-group": [
+        "./projects/ui/radio-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/resizable": [
+        "./projects/ui/resizable/src/index.ts"
+      ],
+      "@spartan-ng/helm/scroll-area": [
+        "./projects/ui/scroll-area/src/index.ts"
+      ],
+      "@spartan-ng/helm/select": [
+        "./projects/ui/select/src/index.ts"
+      ],
+      "@spartan-ng/helm/separator": [
+        "./projects/ui/separator/src/index.ts"
+      ],
+      "@spartan-ng/helm/sheet": [
+        "./projects/ui/sheet/src/index.ts"
+      ],
+      "@spartan-ng/helm/sidebar": [
+        "./projects/ui/sidebar/src/index.ts"
+      ],
+      "@spartan-ng/helm/skeleton": [
+        "./projects/ui/skeleton/src/index.ts"
+      ],
+      "@spartan-ng/helm/slider": [
+        "./projects/ui/slider/src/index.ts"
+      ],
+      "@spartan-ng/helm/sonner": [
+        "./projects/ui/sonner/src/index.ts"
+      ],
+      "@spartan-ng/helm/spinner": [
+        "./projects/ui/spinner/src/index.ts"
+      ],
+      "@spartan-ng/helm/switch": [
+        "./projects/ui/switch/src/index.ts"
+      ],
+      "@spartan-ng/helm/table": [
+        "./projects/ui/table/src/index.ts"
+      ],
+      "@spartan-ng/helm/tabs": [
+        "./projects/ui/tabs/src/index.ts"
+      ],
+      "@spartan-ng/helm/textarea": [
+        "./projects/ui/textarea/src/index.ts"
+      ],
+      "@spartan-ng/helm/toggle": [
+        "./projects/ui/toggle/src/index.ts"
+      ],
+      "@spartan-ng/helm/toggle-group": [
+        "./projects/ui/toggle-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/tooltip": [
+        "./projects/ui/tooltip/src/index.ts"
+      ],
+      "@spartan-ng/helm/typography": [
+        "./projects/ui/typography/src/index.ts"
+      ],
+      "@spartan-ng/helm/utils": [
+        "./projects/ui/utils/src/index.ts"
+      ]
+    }
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/ui/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/ui/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/dyn-form/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/dyn-form/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/dyn-crud/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/dyn-crud/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/formidable-runner/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/formidable-runner/tsconfig.spec.json"
+    }
+  ]
+}
