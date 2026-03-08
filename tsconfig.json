@@ -14,10 +14,10 @@
     "module": "preserve",
     "paths": {
       "dyn-crud": [
-        "./dist/dyn-crud"
+        "./projects/dyn-crud/src/public-api.ts"
       ],
       "dyn-form": [
-        "./dist/dyn-form"
+        "./projects/dyn-form/src/public-api.ts"
       ],
       "ui": [
         "./dist/ui"

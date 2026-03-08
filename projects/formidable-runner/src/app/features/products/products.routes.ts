@@ -1,13 +1,7 @@
-import type { Routes } from '@angular/router';
+import { dynCrudRoutes } from 'dyn-crud';
 
-export const productsRoutes: Routes = [
-  { path: '', loadComponent: () => import('./product-list') },
-  { path: 'new', loadComponent: () => import('./product-form') },
-  {
-    path: ':id',
-    children: [
-      { path: '', loadComponent: () => import('./product-detail') },
-      { path: 'edit', loadComponent: () => import('./product-form') },
-    ],
-  },
-];
+export const productsRoutes = dynCrudRoutes({
+  listComponent: () => import('./product-list'),
+  formComponent: () => import('./product-form'),
+  detailComponent: () => import('./product-detail'),
+});

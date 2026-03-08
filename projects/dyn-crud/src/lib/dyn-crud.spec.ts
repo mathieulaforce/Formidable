@@ -1,19 +1,23 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DynCrud } from './dyn-crud';
+import { DynCrudListComponent } from './dyn-crud-list';
 
-describe('DynCrud', () => {
-  let component: DynCrud;
-  let fixture: ComponentFixture<DynCrud>;
+describe('DynCrudListComponent', () => {
+  let component: DynCrudListComponent;
+  let fixture: ComponentFixture<DynCrudListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DynCrud]
-    })
-    .compileComponents();
+      imports: [DynCrudListComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(DynCrud);
+    fixture = TestBed.createComponent(DynCrudListComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('config', {
+      resourceName: 'Test',
+      resourceNamePlural: 'Tests',
+      columns: [],
+    });
     await fixture.whenStable();
   });
 

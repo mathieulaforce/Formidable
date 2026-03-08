@@ -1,52 +1,28 @@
 import { CurrencyPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { provideIcons } from '@ng-icons/core';
-import { lucideArrowLeft, lucidePencil, lucideStar } from '@ng-icons/lucide';
+import { lucideStar } from '@ng-icons/lucide';
 import { HlmBadgeImports } from '@spartan-ng/helm/badge';
-import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmIconImports } from '@spartan-ng/helm/icon';
 import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
-import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { DynCrudDetailComponent } from 'dyn-crud';
 import { ProductsService } from './products.service';
 
 @Component({
   selector: 'app-product-detail',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ lucideArrowLeft, lucidePencil, lucideStar })],
-  imports: [
-    CurrencyPipe,
-    RouterLink,
-    HlmCardImports,
-    HlmButtonImports,
-    HlmIconImports,
-    HlmBadgeImports,
-    HlmSeparatorImports,
-    HlmSpinnerImports,
-  ],
+  providers: [provideIcons({ lucideStar })],
+  imports: [CurrencyPipe, DynCrudDetailComponent, HlmCardImports, HlmIconImports, HlmBadgeImports, HlmSeparatorImports],
   template: `
-    @if (productResource.isLoading()) {
-      <div class="flex justify-center py-12">
-        <hlm-spinner size="lg" />
-      </div>
-    } @else if (productResource.value(); as p) {
-      <div class="space-y-6">
-        <div class="flex items-center gap-4">
-          <a hlmBtn variant="outline" size="icon" routerLink="/products">
-            <ng-icon hlm name="lucideArrowLeft" size="sm" />
-          </a>
-          <div class="flex-1">
-            <h1 class="text-3xl font-bold tracking-tight">{{ p.title }}</h1>
-            <p class="text-muted-foreground">{{ p.brand }} &middot; {{ p.category }}</p>
-          </div>
-          <a hlmBtn [routerLink]="['edit']">
-            <ng-icon hlm name="lucidePencil" size="sm" class="mr-2" />
-            Edit
-          </a>
-        </div>
-
+    <dyn-crud-detail
+      basePath="/products"
+      [title]="product()?.title ?? ''"
+      [subtitle]="productSubtitle()"
+      [loading]="productResource.isLoading()"
+    >
+      @if (product(); as p) {
         <div class="grid gap-6 md:grid-cols-2">
           <section hlmCard>
             <div hlmCardContent class="p-0">
@@ -104,7 +80,7 @@ import { ProductsService } from './products.service';
 
             <section hlmCard>
               <div hlmCardHeader>
-                <h3 hlmCardTitle>Shipping & Warranty</h3>
+                <h3 hlmCardTitle>Shipping &amp; Warranty</h3>
               </div>
               <div hlmCardContent class="space-y-3">
                 <div class="flex justify-between">
@@ -165,8 +141,8 @@ import { ProductsService } from './products.service';
             }
           </div>
         }
-      </div>
-    }
+      }
+    </dyn-crud-detail>
   `,
 })
 export default class ProductDetail {
@@ -177,5 +153,12 @@ export default class ProductDetail {
   protected readonly productResource = rxResource({
     params: () => Number(this.id()),
     stream: ({ params: id }) => this.service.getById(id),
+  });
+
+  protected readonly product = computed(() => this.productResource.value());
+
+  protected readonly productSubtitle = computed(() => {
+    const p = this.product();
+    return p ? `${p.brand} \u00b7 ${p.category}` : '';
   });
 }

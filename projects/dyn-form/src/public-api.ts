@@ -1,5 +1,2 @@
-/*
- * Public API Surface of dyn-form
- */
-
-export * from './lib/dyn-form';
+export * from './lib/models';
+export { DynFormComponent } from './lib/dyn-form';

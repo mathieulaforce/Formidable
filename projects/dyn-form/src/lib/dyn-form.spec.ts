@@ -1,19 +1,19 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DynForm } from './dyn-form';
+import { DynFormComponent } from './dyn-form';
 
-describe('DynForm', () => {
-  let component: DynForm;
-  let fixture: ComponentFixture<DynForm>;
+describe('DynFormComponent', () => {
+  let component: DynFormComponent;
+  let fixture: ComponentFixture<DynFormComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DynForm]
-    })
-    .compileComponents();
+      imports: [DynFormComponent],
+    }).compileComponents();
 
-    fixture = TestBed.createComponent(DynForm);
+    fixture = TestBed.createComponent(DynFormComponent);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('fields', []);
     await fixture.whenStable();
   });
 

@@ -1,160 +1,48 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { provideIcons } from '@ng-icons/core';
-import { lucideEye, lucidePencil, lucidePlus, lucideSearch, lucideThumbsDown, lucideThumbsUp, lucideTrash2 } from '@ng-icons/lucide';
-import { BrnAlertDialogImports } from '@spartan-ng/brain/alert-dialog';
-import { BrnDialogClose } from '@spartan-ng/brain/dialog';
-import { HlmAlertDialogImports } from '@spartan-ng/helm/alert-dialog';
-import { HlmBadgeImports } from '@spartan-ng/helm/badge';
-import { HlmButtonImports } from '@spartan-ng/helm/button';
-import { HlmIconImports } from '@spartan-ng/helm/icon';
-import { HlmInputImports } from '@spartan-ng/helm/input';
-import { HlmPaginationImports } from '@spartan-ng/helm/pagination';
-import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
-import { HlmTableImports } from '@spartan-ng/helm/table';
+import { DynCrudListComponent, type DynCrudListConfig } from 'dyn-crud';
 import { toast } from 'ngx-sonner';
 import type { Post } from './post.models';
 import { PostsService } from './posts.service';
 
+const LIST_CONFIG: DynCrudListConfig = {
+  resourceName: 'Post',
+  resourceNamePlural: 'Posts',
+  description: 'Manage blog posts',
+  addLabel: 'New Post',
+  searchable: true,
+  columns: [
+    { key: 'title', header: 'Title', cellClass: 'max-w-md font-medium' },
+    { key: 'tags', header: 'Tags', type: 'badges', badgeVariant: 'secondary', maxBadges: 2 },
+    { key: 'reactions.likes', header: 'Likes', type: 'number', align: 'right' },
+    { key: 'reactions.dislikes', header: 'Dislikes', type: 'number', align: 'right' },
+    { key: 'views', header: 'Views', type: 'number', align: 'right' },
+  ],
+  deleteConfirmTitle: 'Delete Post',
+  deleteConfirmDescription: () => 'Are you sure you want to delete this post? This action cannot be undone.',
+};
+
 @Component({
   selector: 'app-post-list',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [provideIcons({ lucidePlus, lucideSearch, lucideEye, lucidePencil, lucideTrash2, lucideThumbsUp, lucideThumbsDown })],
-  imports: [
-    FormsModule,
-    RouterLink,
-    HlmTableImports,
-    HlmButtonImports,
-    HlmIconImports,
-    HlmInputImports,
-    HlmBadgeImports,
-    HlmPaginationImports,
-    HlmSpinnerImports,
-    BrnAlertDialogImports,
-    BrnDialogClose,
-    HlmAlertDialogImports,
-  ],
+  imports: [DynCrudListComponent],
   template: `
-    <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-3xl font-bold tracking-tight">Posts</h1>
-          <p class="text-muted-foreground">Manage blog posts</p>
-        </div>
-        <a hlmBtn routerLink="new">
-          <ng-icon hlm name="lucidePlus" size="sm" class="mr-2" />
-          New Post
-        </a>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <div class="relative max-w-sm flex-1">
-          <ng-icon hlm name="lucideSearch" size="sm" class="text-muted-foreground absolute top-1/2 left-3 -translate-y-1/2" />
-          <input
-            hlmInput
-            class="pl-9"
-            placeholder="Search posts..."
-            [ngModel]="searchQuery()"
-            (ngModelChange)="onSearch($event)"
-          />
-        </div>
-      </div>
-
-      @if (postsResource.isLoading()) {
-        <div class="flex justify-center py-12">
-          <hlm-spinner size="lg" />
-        </div>
-      } @else {
-        <div hlmTableContainer>
-          <table hlmTable>
-            <thead>
-              <tr hlmTrow>
-                <th hlmTh>Title</th>
-                <th hlmTh>Tags</th>
-                <th hlmTh class="text-right">
-                  <ng-icon hlm name="lucideThumbsUp" size="sm" />
-                </th>
-                <th hlmTh class="text-right">
-                  <ng-icon hlm name="lucideThumbsDown" size="sm" />
-                </th>
-                <th hlmTh class="text-right">Views</th>
-                <th hlmTh class="w-32 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (post of posts(); track post.id) {
-                <tr hlmTrow>
-                  <td hlmTd class="max-w-md font-medium">
-                    <span class="line-clamp-1">{{ post.title }}</span>
-                  </td>
-                  <td hlmTd>
-                    <div class="flex gap-1">
-                      @for (tag of post.tags.slice(0, 2); track tag) {
-                        <span hlmBadge variant="secondary" class="text-xs">{{ tag }}</span>
-                      }
-                      @if (post.tags.length > 2) {
-                        <span hlmBadge variant="outline" class="text-xs">+{{ post.tags.length - 2 }}</span>
-                      }
-                    </div>
-                  </td>
-                  <td hlmTd class="text-right">{{ post.reactions.likes }}</td>
-                  <td hlmTd class="text-right">{{ post.reactions.dislikes }}</td>
-                  <td hlmTd class="text-right">{{ post.views }}</td>
-                  <td hlmTd class="text-right">
-                    <div class="flex justify-end gap-1">
-                      <a hlmBtn variant="ghost" size="icon" [routerLink]="[post.id]">
-                        <ng-icon hlm name="lucideEye" size="sm" />
-                      </a>
-                      <a hlmBtn variant="ghost" size="icon" [routerLink]="[post.id, 'edit']">
-                        <ng-icon hlm name="lucidePencil" size="sm" />
-                      </a>
-                      <brn-alert-dialog>
-                        <button brnAlertDialogTrigger hlmBtn variant="ghost" size="icon">
-                          <ng-icon hlm name="lucideTrash2" size="sm" class="text-destructive" />
-                        </button>
-                        <ng-template hlmAlertDialogPortal>
-                          <hlm-alert-dialog-overlay />
-                          <hlm-alert-dialog-content>
-                            <hlm-alert-dialog-header>
-                              <h2 hlmAlertDialogTitle>Delete Post</h2>
-                              <p hlmAlertDialogDescription>
-                                Are you sure you want to delete this post? This action cannot be undone.
-                              </p>
-                            </hlm-alert-dialog-header>
-                            <hlm-alert-dialog-footer>
-                              <button hlmAlertDialogCancel brnDialogClose>Cancel</button>
-                              <button hlmAlertDialogAction brnDialogClose (click)="onDelete(post)">Delete</button>
-                            </hlm-alert-dialog-footer>
-                          </hlm-alert-dialog-content>
-                        </ng-template>
-                      </brn-alert-dialog>
-                    </div>
-                  </td>
-                </tr>
-              } @empty {
-                <tr hlmTrow>
-                  <td hlmTd [colSpan]="6" class="text-muted-foreground text-center">No posts found.</td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <hlm-numbered-pagination
-          [(currentPage)]="currentPage"
-          [(itemsPerPage)]="itemsPerPage"
-          [totalItems]="totalItems()"
-          [pageSizes]="[10, 20, 50]"
-        />
-      }
-    </div>
+    <dyn-crud-list
+      [config]="config"
+      [items]="posts()"
+      [totalItems]="totalItems()"
+      [loading]="postsResource.isLoading()"
+      [(currentPage)]="currentPage"
+      [(itemsPerPage)]="itemsPerPage"
+      (searchChange)="onSearch($event)"
+      (itemDelete)="onDelete($event)"
+    />
   `,
 })
 export default class PostList {
   private readonly service = inject(PostsService);
 
+  protected readonly config = LIST_CONFIG;
   protected readonly searchQuery = signal('');
   protected readonly currentPage = signal(1);
   protected readonly itemsPerPage = signal(10);
@@ -183,7 +71,8 @@ export default class PostList {
     this.currentPage.set(1);
   }
 
-  protected onDelete(post: Post): void {
+  protected onDelete(item: unknown): void {
+    const post = item as Post;
     this.service.delete(post.id).subscribe({
       next: () => {
         const current = this.postsResource.value();
